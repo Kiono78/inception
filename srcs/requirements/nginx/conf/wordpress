@@ -1,0 +1,42 @@
+server {
+	listen 443 ssl;
+	listen [::]:443 ssl;
+
+	#log maybe to be thrown away lateron
+	#access_log /var/log/nginx/website/access.log;
+	#error_log /var/log/nginx/website/error.log warn;
+
+	root /var/www/wordpress/;
+	index index.php index.html index.htm index.nginx-debian.html;
+
+	server_name _ bterral.42.fr;
+
+	# On note le cert et la key (necessaire protocole ssl)
+	ssl_certificate		/etc/nginx/ssl/bterral.42.fr.crt;
+	ssl_certificate_key	/etc/nginx/ssl/bterral.42.fr.key;
+
+	# Protocole d'encryptions pour les cles ssl
+	ssl_protocols		TLSv1.2 TLSv1.3;
+
+	location / {
+	try_files $uri $uri/ /index.php?$args;
+	}
+
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+	#
+	#	# With php-fpm (or other unix sockets):
+		fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+	#	# With php-cgi (or other tcp sockets):
+	#	fastcgi_pass 127.0.0.1:9000;
+	}
+
+	# deny access to .htaccess files, if Apache's document root
+	# concurs with nginx's one
+	#
+	location ~ /\.ht {
+		deny all;
+	}
+
+
+}

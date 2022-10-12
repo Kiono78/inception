@@ -1,0 +1,54 @@
+#Last version
+version: "3"
+
+services:
+  db:
+    build: ./requirements/mariadb
+    image: img_mariadb
+    container_name: mariadb
+    networks:
+      - inception
+    env_file:
+      - .env
+    volumes:
+      - db:/var/lib/mysql
+    restart: always
+  wordpress:
+    build: ./requirements/wordpress
+    image: img_wordpress
+    container_name: wordpress
+    networks:
+      - inception
+    env_file:
+      - .env
+    volumes:
+      - wp:/var/www/wordpress
+    restart: always
+  nginx:
+    build: ./requirements/nginx
+    image: img_nginx
+    ports: 
+      - "443:443"
+    networks:
+      - inception
+    volumes:
+      - wp:/var/www/wordpress
+
+volumes:
+  db:
+    driver: local
+    name: db
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/bterral/data/mariadb
+  wp:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/bterral/data/wp
+
+#Possible to network ls thanks to the below
+networks:
+  inception:
