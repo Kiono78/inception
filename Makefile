@@ -15,7 +15,7 @@ build:
 
 #-d run in the background
 run:
-	sudo docker-compose -f ./srcs/docker-compose.yml up -d
+	sudo docker-compose -f ./srcs/docker-compose.yml up
 
 #-v remove volumes
 down:
@@ -34,9 +34,15 @@ logs:
 	docker logs $(shell docker ps -q)
 
 cleanse:
+	rm -rf /home/bterral/data/mariadb
+	rm -rf /home/bterral/data/wp
 	docker-compose -f ./srcs/docker-compose.yml down
-	docker rm -f $(shell docker ps -a -q)
+	docker system prune --volumes
+	docker system prune -a
 	docker volume rm $(shell docker volume ls -q)
+
+connect_db:
+	mysql -h $(shell docker inspect $(shell docker ps -aqf "name=mariadb") --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}') -u bterral -p
 
 #docker actions
 

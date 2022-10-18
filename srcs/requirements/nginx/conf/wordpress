@@ -1,15 +1,64 @@
+#https://www.nginx.com/resources/wiki/start/topics/recipes/wordpress/
+##upstream php {
+#        server unix:/tmp/php-cgi.socket;
+#        server wordpress:9000;
+#}
+#
+#server {
+#		#https
+#		listen 443 ssl;
+#		listen [::]:443 ssl;
+#		# Protocole d'encryptions pour les cles ssl
+#		ssl_certificate		/etc/nginx/ssl/bterral.42.fr.crt;
+#		ssl_certificate_key	/etc/nginx/ssl/bterral.42.fr.key;
+#		ssl_protocols		TLSv1.2 TLSv1.3;
+#        ## Your website name goes here.
+#        server_name bterral.42.fr;
+#        ## Your only path reference.
+#        root /var/www/wordpress;
+#        ## This should be in your http block and if it is, it's not needed here.
+#        index index.php;
+#
+#        location = /favicon.ico {
+#                log_not_found off;
+#                access_log off;
+#        }
+#
+#        location = /robots.txt {
+#                allow all;
+#                log_not_found off;
+#                access_log off;
+#        }
+#
+#        location / {
+#                # This is cool because no php is touched for static content.
+#                # include the "?$args" part so non-default permalinks doesn't break when using query string
+#                try_files $uri $uri/ /index.php?$args;
+#        }
+#
+#        location ~ \.php$ {
+#                #NOTE: You should have "cgi.fix_pathinfo = 0;" in php.ini
+#                include fastcgi_params;
+#                fastcgi_intercept_errors on;
+#                fastcgi_pass php;
+#                #The following parameter can be also included in fastcgi_params file
+#                fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;
+#        }
+#
+#        location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+#                expires max;
+#                log_not_found off;
+#        }
+#}
+#
+# Minimum necessaire pour servir nos pages php wordpress
 server {
+	# Definition du nom de domaine comme demande dans le sujet
+	server_name	bterral.42.fr;
+
+	# Ecoute en ssl uniquement 
 	listen 443 ssl;
 	listen [::]:443 ssl;
-
-	#log maybe to be thrown away lateron
-	#access_log /var/log/nginx/website/access.log;
-	#error_log /var/log/nginx/website/error.log warn;
-
-	root /var/www/wordpress/;
-	index index.php index.html index.htm index.nginx-debian.html;
-
-	server_name _ bterral.42.fr;
 
 	# On note le cert et la key (necessaire protocole ssl)
 	ssl_certificate		/etc/nginx/ssl/bterral.42.fr.crt;
@@ -18,25 +67,20 @@ server {
 	# Protocole d'encryptions pour les cles ssl
 	ssl_protocols		TLSv1.2 TLSv1.3;
 
+	# Fichiers a afficher et dossier ou les chercher
+	root /var/www/wordpress;
+	index index.php index.html;
+
+	# Directive necessaire pour les endpoints, 
+	# Fast cgi necessaire pour nginx pour "traduire" le php
 	location / {
-	try_files $uri $uri/ /index.php?$args;
+		location ~ \.php$ {
+			fastcgi_split_path_info ^(.+\.php)(/.+)$;
+			fastcgi_pass wordpress:9000;
+			fastcgi_index index.php;
+			include fastcgi_params;
+			fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+			fastcgi_param SCRIPT_NAME $fastcgi_script_name;
+		}
 	}
-
-	location ~ \.php$ {
-		include snippets/fastcgi-php.conf;
-	#
-	#	# With php-fpm (or other unix sockets):
-		fastcgi_pass unix:/run/php/php8.1-fpm.sock;
-	#	# With php-cgi (or other tcp sockets):
-	#	fastcgi_pass 127.0.0.1:9000;
-	}
-
-	# deny access to .htaccess files, if Apache's document root
-	# concurs with nginx's one
-	#
-	location ~ /\.ht {
-		deny all;
-	}
-
-
 }

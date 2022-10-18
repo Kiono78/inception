@@ -1,12 +1,8 @@
 #!/bin/sh
 
 if [ -d "/run/mysqld" ]; then
-	echo "MariaDB already installed - skipping installation steps"
-	#Granting rights on the SQL server folder
 	chown -R mysql:mysql /run/mysqld
 else
-	echo "Starting installation of MariaDB"
-	#Creation and granting rights for DB user
 	mkdir -p /run/mysqld
 	chown -R mysql:mysql /run/mysqld
 fi
@@ -30,7 +26,6 @@ else
 fi
 
 #cleanup
-rm entrypoint.sh
 rm setup_db.sql
 
 exec /usr/bin/mysqld --user=mysql --console --skip-name-resolve --skip-networking=0 $@

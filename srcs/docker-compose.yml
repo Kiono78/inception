@@ -2,9 +2,9 @@
 version: "3"
 
 services:
-  db:
+  mariadb:
     build: ./requirements/mariadb
-    image: img_mariadb
+    image: mariadb
     container_name: mariadb
     networks:
       - inception
@@ -13,10 +13,23 @@ services:
     volumes:
       - db:/var/lib/mysql
     restart: always
+  nginx:
+    build: ./requirements/nginx
+    image: nginx
+    container_name: nginx
+    ports: 
+      - 443:443
+    networks:
+      - inception
+    volumes:
+      - wp:/var/www/wordpress
+    restart: always
   wordpress:
     build: ./requirements/wordpress
-    image: img_wordpress
+    image: wordpress
     container_name: wordpress
+    depends_on:
+      - mariadb
     networks:
       - inception
     env_file:
@@ -24,15 +37,6 @@ services:
     volumes:
       - wp:/var/www/wordpress
     restart: always
-  nginx:
-    build: ./requirements/nginx
-    image: img_nginx
-    ports: 
-      - "443:443"
-    networks:
-      - inception
-    volumes:
-      - wp:/var/www/wordpress
 
 volumes:
   db:
@@ -52,3 +56,4 @@ volumes:
 #Possible to network ls thanks to the below
 networks:
   inception:
+    driver: bridge
