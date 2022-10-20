@@ -1,25 +1,64 @@
-#docker compose actions
+DOCKER-COMPOSE = ./srcs/docker-compose.yml
+DB_VOLUME = /home/bterral/data/mariadb
+WP_VOLUME = /home/bterral/data/wp
 
-all: volumes build run
+all: host volumes build run
 
+#check on VM if working fine
+host:
+	@if [ -z $(shell grep bterral.42.fr /etc/hosts)] then $(shell sudo echo "127.0.0.1 bterral.42.fr" >> /etc/hosts) fi
+
+#volumes
 volumes: volume_db volume_wp
 
 volume_db:
-	mkdir -p /home/bterral/data/mariadb
+	mkdir -p $(DB_VOLUME)
 
 volume_wp:
-	mkdir -p /home/bterral/data/wp
+	mkdir -p $(WP_VOLUME)
 
+#docker-compose commands
 build:
-	sudo docker-compose -f ./srcs/docker-compose.yml build
+	sudo docker-compose -f $(DOCKER-COMPOSE) build
 
-#-d run in the background
 run:
-	sudo docker-compose -f ./srcs/docker-compose.yml up
+	sudo docker-compose -f $(DOCKER-COMPOSE) up -d
 
-#-v remove volumes
+start:
+	sudo docker-compose -f $(DOCKER-COMPOSE) start
+
+stop:
+	sudo docker-compose -f $(DOCKER-COMPOSE) stop
+
 down:
-	sudo docker-compose -f ./srcs/docker-compose.yml down --volumes
+	sudo docker-compose -f $(DOCKER-COMPOSE) down
+
+#docker-compose clean ups
+
+clean:
+	sudo docker-compose -f $(DOCKER_COMPOSE) down ---rmi all --volumes --remove-orphans
+
+fclean: clean 
+
+#correction hardcore killall
+
+start_correction: killall 
+
+killall:
+	docker stop $(shell docker ps -qa)
+	docker rm $(shell docker ps -qa)
+	docker rmi $(shell docker images -qa)
+	docker volume rm $(docker volume ls -q)
+	docker network rm $(docker network ls -q)
+
+local_volume_clean:
+	rm -rf $(DB_VOLUME)
+	rm -rf $(WP_VOLUME)
+
+
+
+
+
 
 prune: down
 	sudo docker system prune --volumes
@@ -36,7 +75,7 @@ logs:
 cleanse:
 	rm -rf /home/bterral/data/mariadb
 	rm -rf /home/bterral/data/wp
-	docker-compose -f ./srcs/docker-compose.yml down
+	docker-compose -f $(DOCKER-COMPOSE) down
 	docker system prune --volumes
 	docker system prune -a
 	docker volume rm $(shell docker volume ls -q)
