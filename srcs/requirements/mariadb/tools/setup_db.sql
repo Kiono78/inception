@@ -1,5 +1,5 @@
 FLUSH PRIVILEGES;
-/** delet some garbage DB and users**/
+/** delete some garbage DB and users**/
 DELETE FROM	mysql.user WHERE User='';
 DROP DATABASE test;
 DELETE FROM mysql.db WHERE Db='test';

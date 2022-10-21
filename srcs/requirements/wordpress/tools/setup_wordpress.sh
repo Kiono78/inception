@@ -1,32 +1,9 @@
 #!/bin/sh
 
-#Add condition to make sure everything is installed before
-
-# if [ ! -f "/var/www/wordpress/wp-config.php" ]; then
-# 	cp wp-config.php /var/www/wordpress/
-# 	if [ -f /usr/bin/wp ]
-# 	then
-# 		echo "wp-cli already installed"
-# 	else
-# 		wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-# 		chmod +x wp-cli.phar
-# 		mv wp-cli.phar /usr/bin/wp
-# 	fi
-# 	#sleep 20
-# 	wp core install --path=/var/www/wordpress --url=$DOMAIN_NAME --title=$WP_TITLE --admin_user=$WP_ADMIN_LOGIN --admin_password=$WP_ADMIN_PWD --admin_email=$WP_ADMIN_EMAIL
-# 	wp --path=/var/www/wordpress user create $WORDPRESS_USER $WORDPRESS_EMAIL --role=$WORDPRESS_ROLE --user_pass=$WORDPRESS_PASS
-# fi
-
-# php-fpm8
-
-#sed -i "s/listen = \/run\/php\/php8.1-fpm.sock/listen = 9000/" "/etc/php8/php-fpm.d/www.conf";
 sed -i "s/listen = 127.0.0.1:9000/listen = 9000/" "/etc/php8/php-fpm.d/www.conf";
 
 if [ ! -f /var/www/wordpress/wp-config.php ]; then
 	echo "Wordpress: setting up..."
-	#mkdir -p /var/www/wordpress && cd /var/www/wordpress
-	#cp ../wp-config.php .
-	#cd /var/www/wordpress
 	wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar;
 	chmod +x wp-cli.phar;
 	mv wp-cli.phar /usr/bin/wp;
@@ -37,7 +14,6 @@ if [ ! -f /var/www/wordpress/wp-config.php ]; then
 	echo "[i] DB_USER_PWD: $DB_USER_PWD"
 	echo "[i] DB_HOST: $DB_HOST"
 	wp config create --allow-root --dbname=$DB_NAME --dbuser=$DB_USER --dbpass=$DB_USER_PWD --dbhost=$DB_HOST
-	sleep 5;
 	echo "Wordpress: core installation"
 	echo "[i] Domain name: $DOMAIN_NAME"
 	echo "[i] wordpress title: $WP_TITLE"
