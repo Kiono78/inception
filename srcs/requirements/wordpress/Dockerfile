@@ -1,6 +1,6 @@
 #Lightest, secured image with good community according to https://naiveskill.com/docker-base-image/
 #Hope the latest tag works
-FROM	alpine:latest
+FROM	alpine:3.16
 
 RUN		apk update
 RUN		apk add curl

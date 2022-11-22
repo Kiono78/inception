@@ -7,19 +7,6 @@ all: host volumes build run
 host:
 	grep bterral.42.fr /etc/hosts || echo "127.0.0.1 bterral.42.fr" >> /etc/hosts
 
-#local volumes
-volumes: volume_db volume_wp
-
-volume_db:
-	mkdir -p $(DB_VOLUME)
-
-volume_wp:
-	mkdir -p $(WP_VOLUME)
-
-local_volume_clean:
-	rm -rf $(DB_VOLUME)
-	rm -rf $(WP_VOLUME)
-
 #docker-compose commands
 build:
 	docker-compose -f $(DOCKER-COMPOSE) build
@@ -42,6 +29,18 @@ ps:
 images:
 	docker-compose -f $(DOCKER-COMPOSE) images
 
+#local volumes
+volumes: volume_db volume_wp
+
+volume_db:
+	mkdir -p $(DB_VOLUME)
+
+volume_wp:
+	mkdir -p $(WP_VOLUME)
+
+local_volume_clean:
+	sudo rm -rf $(DB_VOLUME)
+	sudo rm -rf $(WP_VOLUME)
 
 #docker-compose clean ups
 
@@ -50,22 +49,21 @@ clean:
 
 fclean: clean local_volume_clean
 
-#correction hardcore killall
-
-start_correction: killall local_volume_clean
-
-killall:
-	docker stop $(shell docker ps -qa) 2 > /dev/null
-	docker rm $(shell docker ps -qa) 2 > /dev/null
-	docker rmi $(shell docker images -qa) 2 > /dev/null
-	docker volume rm $(docker volume ls -q) 2 > /dev/null
-	docker network rm $(docker network ls -q) 2 > /dev/null
-
 prune: local_volume_clean
 	docker system prune --volumes
+
+#correction hardcore killall
 
 #Commands to check container states
 
 local_connect_db:
 	mysql -h $(shell docker inspect $(shell docker ps -aqf "name=mariadb") --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}') -u bterral -p
+
+#logs
+logs:
+	docker-compose -f $(DOCKER-COMPOSE) logs --tail=200 -f
+
+.phony: all host build run start stop down ps images volumes volume_db volume_wp local_volume_clean clean fclean prune local_connect_db logs
+
+
 

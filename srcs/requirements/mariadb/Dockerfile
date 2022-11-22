@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine:3.16
 
 #Still what about no cache
 RUN		apk update && apk upgrade

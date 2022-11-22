@@ -8,7 +8,7 @@ if [ ! -f /var/www/wordpress/wp-config.php ]; then
 	chmod +x wp-cli.phar;
 	mv wp-cli.phar /usr/bin/wp;
 	wp core download --allow-root;
-	sleep 5;
+	sleep 30;
 	echo "[i] DB_NAME: $DB_NAME"
 	echo "[i] DB_USER: $DB_USER"
 	echo "[i] DB_USER_PWD: $DB_USER_PWD"
@@ -19,7 +19,7 @@ if [ ! -f /var/www/wordpress/wp-config.php ]; then
 	echo "[i] wordpress title: $WP_TITLE"
 	echo "[i] wp admin login: $WP_ADMIN_LOGIN"
 	echo "[i] wp admin user password: $WP_ADMIN_PWD"
-	echo "[i] wp email: $WP_ADMIN_EMAIL"
+	echo "[i] wp email: $WP_ADMIN_EMIL"
 	echo "[i] wordpress user: $WORDPRESS_USER"
 	echo "[i] wordpress user email: $WORDPRESS_EMAIL"
 	echo "[i] wordpress user password: $WORDPRESS_PASS"
